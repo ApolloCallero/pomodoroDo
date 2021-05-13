@@ -1,0 +1,6 @@
+framework module Pods_pomodoro_last {
+  umbrella header "Pods-pomodoro_last-umbrella.h"
+
+  export *
+  module * { export * }
+}
