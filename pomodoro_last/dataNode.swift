@@ -16,7 +16,8 @@ class dataNode{
     // to be used by statsVC
     var occuredMonth : Bool
     var occuredWeek : Bool
-
+    var daysBefore : Int // days before current date
+    
     var isStudySess : Bool
     var minutes: Int
     //
@@ -42,15 +43,31 @@ class dataNode{
         self.currentYear = getYear(stringDate: currentDate_)
         self.occuredMonth = happendMonth(currentD: currentDay, currentM: currentMonth, currentYear: currentYear, createdD: madeDay, createdM: madeMonth,createdYear:madeYear)
         self.occuredWeek = happendWeek(currentD: currentDay, currentM: currentMonth, currentYear: currentYear, createdD: madeDay, createdM: madeMonth,createdYear:madeYear)
-        
+        self.daysBefore = daysBeforeCurr(year: madeYear, month: madeMonth, day:madeDay , currYear: currentYear, currMonth: currentMonth, currDay: currentDay)
     }
 
 
-    }
+}
     
     
-    
-    
+
+func daysBeforeCurr(year:Int , month: Int, day: Int, currYear: Int, currMonth: Int, currDay: Int) -> Int{
+    var sessionMade = NSDateComponents()
+    sessionMade.year = year
+    sessionMade.month = month
+    sessionMade.day = day
+
+    var curr = NSDateComponents()
+    curr.year = currYear
+    curr.month = currMonth
+    curr.day = currDay
+    // Get NSDate given the above date components
+    var today = NSCalendar(identifier: NSCalendar.Identifier.gregorian)?.date(from: curr as DateComponents)
+    var madeDate = NSCalendar(identifier: NSCalendar.Identifier.gregorian)?.date(from: sessionMade as DateComponents)
+    let diffInDays = Calendar.current.dateComponents([.day], from: madeDate!, to: today!).day
+    print("diff", diffInDays)
+    return diffInDays!
+}
 //Assuming each month is only 30 days
 func happendMonth(currentD: Int,currentM:Int,currentYear:Int,createdD:Int,createdM:Int,createdYear: Int ) -> Bool{
     //regular same month case
@@ -98,11 +115,6 @@ func happendWeek(currentD: Int,currentM:Int,currentYear:Int,createdD:Int,created
         }
         return false
     }
-    
-    
-    
-    
-    
     return false
 }
 

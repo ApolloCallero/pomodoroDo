@@ -15,9 +15,18 @@ class StatsVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("stats")
-        // Do any additional setup after loading the view.
-        //self.getData()
+        //segmentedControl.selectedSegmentIndex =  1
+        self.getData()
+        
+        //init chart view values
+        chartView.pinchZoomEnabled = false
+        chartView.drawBarShadowEnabled = false
+        chartView.drawBordersEnabled = true
+        chartView.doubleTapToZoomEnabled = false
+        chartView.drawGridBackgroundEnabled = true
+        chartView.noDataText = "No Data available for Chart"
+        chartView.drawValueAboveBarEnabled = false
+        //self.viewMonthly()
     }
 
 
@@ -25,6 +34,8 @@ class StatsVC: UIViewController {
     var allStudySessions = [Int]()
     var dataNodes = [dataNode]()
     
+    
+    var firstLoad = true
     @IBAction func indexChanged(_ sender: Any) {
         switch segmentedControl.selectedSegmentIndex
         {
@@ -44,7 +55,6 @@ class StatsVC: UIViewController {
     
     @IBOutlet weak var chartView: BarChartView!
     
-    //firebase.firestore.FieldValue.serverTimestamp()
     func getData() {
         self.dataNodes = []
         self.allStudySessions = []
@@ -64,84 +74,90 @@ class StatsVC: UIViewController {
                 self.allSessions()
             }
         }
-        print("out closure",self.allStudySessions)
     }
     
     func viewMonthly(){
-        self.dataNodes = sortByDate(nodes: self.dataNodes)
         chartView.animate(yAxisDuration: 2.0)
-        chartView.pinchZoomEnabled = false
-        chartView.drawBarShadowEnabled = false
-        chartView.drawBordersEnabled = false
-        chartView.doubleTapToZoomEnabled = false
-        chartView.drawGridBackgroundEnabled = true
-        chartView.noDataText = "No Data available for Chart"
+        self.dataNodes = sortByDate(nodes: self.dataNodes)
         var dataEntries: [BarChartDataEntry] = []
-        var arrIndex = 0
+        var mins = [Double]( repeating: 0.0, count: 30)//days
         for node in self.dataNodes {
-            if node.occuredMonth{
-                let dataEntry = BarChartDataEntry(x: Double(arrIndex), y: Double(node.minutes))
-                dataEntries.append(dataEntry)
-                arrIndex = arrIndex + 1
-                
+            if node.daysBefore < 30 {
+                mins[29 - node.daysBefore] += Double(node.minutes)
             }
-            
+        }
+        var count = 0
+        print("mins:", mins)
+        for _ in mins{
+            let dataEntry = BarChartDataEntry(x: Double(count), y: mins[count])
+            dataEntries.append(dataEntry)
+            count += 1
         }
         let chartDataSet = BarChartDataSet(entries: dataEntries, label: "Bar Chart View")
         let chartData = BarChartData(dataSet: chartDataSet)
         chartView.data = chartData
+        var xlabel = [String]( repeating: " ", count: 6)
+        xlabel[0] = " agoabcdelmnopqrstuvwxyzabcdefghijklnmopqrstuvwxyzghhhhhhhhhhhhhhhhhhhhhhjsfhdjdbvhjdf                   30 days ago                          15 days ago                             Today                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaa "//hacky way to get the xlabel axis to do what i want
+        chartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: xlabel)
+        chartView.xAxis.granularity = 0
     }
     
     func viewWeekly(){
-        self.dataNodes = sortByDate(nodes: self.dataNodes)
         chartView.animate(yAxisDuration: 2.0)
-        chartView.pinchZoomEnabled = false
-        chartView.drawBarShadowEnabled = false
-        chartView.drawBordersEnabled = false
-        chartView.doubleTapToZoomEnabled = false
-        chartView.drawGridBackgroundEnabled = true
-        chartView.noDataText = "No Data available for Chart"
         var dataEntries: [BarChartDataEntry] = []
+        self.dataNodes = sortByDate(nodes: self.dataNodes)
+        var mins = [Double]( repeating: 0.0, count: 7)//days
         var arrIndex = 0
         for node in self.dataNodes {
-            if node.occuredWeek{
-            let dataEntry = BarChartDataEntry(x: Double(arrIndex), y: Double(node.minutes))
+            if node.daysBefore < 7{
+                mins[6 - node.daysBefore] += Double(node.minutes)
+            }
+        }
+        var count = 0
+        for i in mins{
+            let dataEntry = BarChartDataEntry(x: Double(count), y: mins[count])
             dataEntries.append(dataEntry)
-            arrIndex = arrIndex + 1}
-            
+            count += 1
         }
         let chartDataSet = BarChartDataSet(entries: dataEntries, label: "Bar Chart View")
         let chartData = BarChartData(dataSet: chartDataSet)
         chartView.data = chartData
+        var xlabel = [String]( repeating: " ", count: 6)
+        xlabel[0] = " agoabcdelmnuvwxyzabcdijklnmopqrstuvwxyzghhhhhhhhhhhhhhhhhhhhhhjsfhdjdbvhjdf                   6 days ago                           3 days ago                                 Today                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaa "//hacky way to get the xlabel axis to do what i want
+        chartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: xlabel)
+        chartView.xAxis.granularity = 0
     }
     
     
     
     
     func allSessions(){
-        self.dataNodes = sortByDate(nodes: self.dataNodes)
         chartView.animate(yAxisDuration: 2.0)
-        chartView.pinchZoomEnabled = false
-        chartView.drawBarShadowEnabled = false
-        chartView.drawBordersEnabled = false
-        chartView.doubleTapToZoomEnabled = false
-        chartView.drawGridBackgroundEnabled = true
-        chartView.noDataText = "No Data available for Chart"
+        self.dataNodes = sortByDate(nodes: self.dataNodes)
         var dataEntries: [BarChartDataEntry] = []
+        let firstDate = self.dataNodes[0].daysBefore
+        var mins = [Double]( repeating: 0.0, count: firstDate)//days
         var arrIndex = 0
-        for i in self.dataNodes {
-            let dataEntry = BarChartDataEntry(x: Double(arrIndex), y: Double(i.minutes))
+        for node in self.dataNodes {
+            if node.daysBefore <= firstDate{
+                mins[firstDate - node.daysBefore] += Double(node.minutes)
+            }
+        }
+        var count = 0
+        for i in mins{
+            let dataEntry = BarChartDataEntry(x: Double(count), y: mins[count])
             dataEntries.append(dataEntry)
-            arrIndex = arrIndex + 1
+            count += 1
         }
         let chartDataSet = BarChartDataSet(entries: dataEntries, label: "Bar Chart View")
         let chartData = BarChartData(dataSet: chartDataSet)
         chartView.data = chartData
+        var xlabel = [String]( repeating: " ", count: 6)
+        xlabel[0] = " agoabcdelmnuvwxyzabcdijklnmopqrstuvwxyzjhbjhbjbhjbhjbjhhhhhhhhhhhhhhhhhhhhjsfhdjdbvhjdf                           \(firstDate) days ago                                                                              Today                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaa "//hacky way to get the xlabel axis to do what i want
+        chartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: xlabel)
+        chartView.xAxis.granularity = 0
     }
-    override func viewDidAppear(_ animated: Bool) {
-        self.dataNodes = []
-        self.getData()
-    }
+
 }
 
 
