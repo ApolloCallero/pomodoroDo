@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B91BECB10AA4C78E320E8D31 /* Pods_pomodoro_last.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0D3D222EF498D6E5CF85016 /* Pods_pomodoro_last.framework */; };
+		B73CBABB06F6046BA9048794 /* Pods_pomodoro_last.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE5A61AB85A8B0CEB1568F0 /* Pods_pomodoro_last.framework */; };
 		F00341302634C0B400DD297B /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003412F2634C0B400DD297B /* DateHelpers.swift */; };
 		F00FEF3E262423E5006BE6BB /* TimerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00FEF3D262423E5006BE6BB /* TimerVC.swift */; };
 		F00FEF4326242408006BE6BB /* StatsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00FEF4226242408006BE6BB /* StatsVC.swift */; };
@@ -20,11 +20,14 @@
 		F05B66ED2624230B00CE580A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F05B66EB2624230B00CE580A /* LaunchScreen.storyboard */; };
 		F05B66F82624230B00CE580A /* pomodoro_lastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05B66F72624230B00CE580A /* pomodoro_lastTests.swift */; };
 		F05B67032624230B00CE580A /* pomodoro_lastUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05B67022624230B00CE580A /* pomodoro_lastUITests.swift */; };
+		F08123F7268187CB004D57B9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F08123F6268187CB004D57B9 /* GoogleService-Info.plist */; };
 		F08746C6262624B500EAAADD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F08746C5262624B500EAAADD /* Main.storyboard */; };
 		F08B4E622634EA0300A53C5E /* LeaderBoardVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08B4E612634EA0300A53C5E /* LeaderBoardVC.swift */; };
-		F0A5551526242DDE002682EF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F0A5551426242DDE002682EF /* GoogleService-Info.plist */; };
 		F0C65CC5263527A40028AD53 /* LeaderBoardData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F0C65CC3263527A40028AD53 /* LeaderBoardData.xcdatamodeld */; };
 		F0D359732635470400BE15A3 /* person.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D359722635470400BE15A3 /* person.swift */; };
+		F0F8E72A2658AFBE00E9697E /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F8E7292658AFBE00E9697E /* HomeViewController.swift */; };
+		F0F8E72F2658B07C00E9697E /* SignUpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F8E72E2658B07C00E9697E /* SignUpVC.swift */; };
+		F0F8E74D2658B09300E9697E /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F8E74C2658B09300E9697E /* LogInViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,7 +49,7 @@
 
 /* Begin PBXFileReference section */
 		2FCE8158BB8D8CD8A8B2A325 /* Pods-pomodoro_last.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pomodoro_last.debug.xcconfig"; path = "Target Support Files/Pods-pomodoro_last/Pods-pomodoro_last.debug.xcconfig"; sourceTree = "<group>"; };
-		B0D3D222EF498D6E5CF85016 /* Pods_pomodoro_last.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_pomodoro_last.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9CE5A61AB85A8B0CEB1568F0 /* Pods_pomodoro_last.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_pomodoro_last.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB8F12184DB94A642E2E1BDC /* Pods-pomodoro_last.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pomodoro_last.release.xcconfig"; path = "Target Support Files/Pods-pomodoro_last/Pods-pomodoro_last.release.xcconfig"; sourceTree = "<group>"; };
 		F003412F2634C0B400DD297B /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
 		F00FEF3D262423E5006BE6BB /* TimerVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerVC.swift; sourceTree = "<group>"; };
@@ -66,11 +69,14 @@
 		F05B66FE2624230B00CE580A /* pomodoro_lastUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pomodoro_lastUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F05B67022624230B00CE580A /* pomodoro_lastUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pomodoro_lastUITests.swift; sourceTree = "<group>"; };
 		F05B67042624230B00CE580A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F08123F6268187CB004D57B9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F08746C5262624B500EAAADD /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		F08B4E612634EA0300A53C5E /* LeaderBoardVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderBoardVC.swift; sourceTree = "<group>"; };
-		F0A5551426242DDE002682EF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F0C65CC4263527A40028AD53 /* LeaderBoardData.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LeaderBoardData.xcdatamodel; sourceTree = "<group>"; };
 		F0D359722635470400BE15A3 /* person.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = person.swift; sourceTree = "<group>"; };
+		F0F8E7292658AFBE00E9697E /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
+		F0F8E72E2658B07C00E9697E /* SignUpVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpVC.swift; sourceTree = "<group>"; };
+		F0F8E74C2658B09300E9697E /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,7 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B91BECB10AA4C78E320E8D31 /* Pods_pomodoro_last.framework in Frameworks */,
+				B73CBABB06F6046BA9048794 /* Pods_pomodoro_last.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,7 +117,7 @@
 		C9423F7F76646B8D3B4B6FC6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B0D3D222EF498D6E5CF85016 /* Pods_pomodoro_last.framework */,
+				9CE5A61AB85A8B0CEB1568F0 /* Pods_pomodoro_last.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -151,12 +157,15 @@
 				F05B66E92624230B00CE580A /* Assets.xcassets */,
 				F05B66EB2624230B00CE580A /* LaunchScreen.storyboard */,
 				F05B66EE2624230B00CE580A /* Info.plist */,
-				F0A5551426242DDE002682EF /* GoogleService-Info.plist */,
 				F050AA00262E8E6200611D94 /* dataNode.swift */,
 				F003412F2634C0B400DD297B /* DateHelpers.swift */,
+				F08123F6268187CB004D57B9 /* GoogleService-Info.plist */,
 				F08B4E612634EA0300A53C5E /* LeaderBoardVC.swift */,
 				F0C65CC3263527A40028AD53 /* LeaderBoardData.xcdatamodeld */,
 				F0D359722635470400BE15A3 /* person.swift */,
+				F0F8E7292658AFBE00E9697E /* HomeViewController.swift */,
+				F0F8E72E2658B07C00E9697E /* SignUpVC.swift */,
+				F0F8E74C2658B09300E9697E /* LogInViewController.swift */,
 			);
 			path = pomodoro_last;
 			sourceTree = "<group>";
@@ -190,7 +199,7 @@
 				F05B66D92624230600CE580A /* Sources */,
 				F05B66DA2624230600CE580A /* Frameworks */,
 				F05B66DB2624230600CE580A /* Resources */,
-				5E58AC98B6C81A9A48663CF0 /* [CP] Embed Pods Frameworks */,
+				52723D0C3CBAD0A19C34258A /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -284,8 +293,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0A5551526242DDE002682EF /* GoogleService-Info.plist in Resources */,
 				F05B66ED2624230B00CE580A /* LaunchScreen.storyboard in Resources */,
+				F08123F7268187CB004D57B9 /* GoogleService-Info.plist in Resources */,
 				F05B66EA2624230B00CE580A /* Assets.xcassets in Resources */,
 				F08746C6262624B500EAAADD /* Main.storyboard in Resources */,
 			);
@@ -308,7 +317,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5E58AC98B6C81A9A48663CF0 /* [CP] Embed Pods Frameworks */ = {
+		52723D0C3CBAD0A19C34258A /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -364,7 +373,10 @@
 				F08B4E622634EA0300A53C5E /* LeaderBoardVC.swift in Sources */,
 				F00341302634C0B400DD297B /* DateHelpers.swift in Sources */,
 				F00FEF4826242427006BE6BB /* AchivementsVC.swift in Sources */,
+				F0F8E74D2658B09300E9697E /* LogInViewController.swift in Sources */,
+				F0F8E72F2658B07C00E9697E /* SignUpVC.swift in Sources */,
 				F05B66E32624230600CE580A /* SceneDelegate.swift in Sources */,
+				F0F8E72A2658AFBE00E9697E /* HomeViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -540,6 +552,7 @@
 				DEVELOPMENT_TEAM = LT9Z3P9RBJ;
 				EXCLUDED_ARCHS = "\"arm64\"";
 				INFOPLIST_FILE = pomodoro_last/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -562,6 +575,7 @@
 				DEVELOPMENT_TEAM = LT9Z3P9RBJ;
 				EXCLUDED_ARCHS = "\"arm64\"";
 				INFOPLIST_FILE = pomodoro_last/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -12,9 +12,8 @@ import Firebase
 import FirebaseFirestore
 import CoreData
 class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
-
-    
     override func viewDidLoad() {
+        print("init")
         super.viewDidLoad()
         self.friendsTableView.delegate = self
         self.friendsTableView.dataSource = self
@@ -25,11 +24,6 @@ class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     var managedObjectContext: NSManagedObjectContext!
     var appDelegate: AppDelegate!
     var dataF: [NSManagedObject] = []
-    
-    
-    
-
-    
     var people: [Person] = []
 
     @IBOutlet weak var friendsTableView: UITableView!
@@ -37,7 +31,6 @@ class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         self.friendsTableView.delegate = self
         self.friendsTableView.dataSource = self
         addFriendPopUp()
-        reloadPeople()
     }
 
     func addFriendPopUp(){
@@ -47,7 +40,7 @@ class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         let save = UIAlertAction(title: "Save", style: .default) { (alertAction) in
             let emailTextField = alert.textFields![0] as UITextField
             if emailTextField.text != "" {
-                self.save(name: emailTextField.text!)
+                self.save(email: emailTextField.text!)
             } else {
                 print("TF 1 is Empty...")
             }
@@ -56,7 +49,7 @@ class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         //Step : 3
         //For first TF
         alert.addTextField { (emailTextField) in
-            emailTextField.placeholder = "Enter Your Friends Username"
+            emailTextField.placeholder = "Your Friend's Email"
             emailTextField.textColor = .blue
         }
 
@@ -72,12 +65,13 @@ class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         if indexPath.row == 0{
             people = sortPeople()
         }
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "freindCell", for: indexPath)
+        print(String(indexPath.row + 1) + ": " + people[indexPath.row].name)
         cell.textLabel?.text = String(indexPath.row + 1) + ": " + people[indexPath.row].name
         cell.detailTextLabel?.text = "Minutes Suudied: " + String(people[indexPath.row].timeStudy)
         //change text color if it's the users turn
-        if UserDefaults.standard.string(forKey: "email")! == people[indexPath.row].name{
+        let user = Auth.auth().currentUser
+        if user!.email! == people[indexPath.row].email{
             cell.textLabel?.textColor = UIColor.blue
             cell.detailTextLabel?.textColor = UIColor.blue
         }
@@ -89,33 +83,62 @@ class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     }
     
     
-    //save name to to coredate
-    func save(name: String) {
+    //save name to to core data
+    func save(email: String) {
         let q = NSEntityDescription.insertNewObject(forEntityName:"Friend", into: self.managedObjectContext)
-        q.setValue(name, forKey: "name")
-        self.dataF.append(q)
-        appDelegate.saveContext() // In AppDelegate.swift
-        addFriend(friend: name)
-    }
-    
-    func addFriend(friend: String){
-        Firestore.firestore().collection(friend + "StudySession")
-            .getDocuments() { (querySnapshot, err) in
-                if let err = err {
-                    print("Error getting documents: \(err)")
-                } else {
-                    var totalTime = 0
-                    for document in querySnapshot!.documents {
-                        totalTime = totalTime + (document.get("StudySessionTime") as! Int)
+        var friendInfoRef: DocumentReference?
+        friendInfoRef = Firestore.firestore().collection(email).document("UserInfo")
+        friendInfoRef?.getDocument() { (document, error) in
+            if let document = document {
+                let first = document.get("first name") as! String
+                let last = document.get("last name") as! String
+                let fEmail = document.get("Email") as! String
+                if self.inPeople(n: fEmail) == false{
+                    q.setValue(fEmail, forKey: "email")
+                    q.setValue((first + " " + last), forKey: "name")
+                    self.dataF.append(q)
+                    self.appDelegate.saveContext() // In AppDelegate.swift
+                    self.addFriend(email: email)
+                    self.reloadPeople()
                     }
-                    if self.inPeople(n: friend) == false{
-                        self.people.append(Person(n: friend, mins: totalTime))
-                        self.reloadPeople()
-                    }
-                    
                 }
-                
+                        
+            else {
+                print("Document does not exist in cache", document?.data())
+            }
+    }
+    }
+    func addFriend(email: String){
+        var friendInfoRef: DocumentReference?
+        let friendStudyDocu = Firestore.firestore().collection(email).document("StudySessions").collection("StudyDocuments")
+        friendInfoRef = Firestore.firestore().collection(email).document("UserInfo")
+        friendInfoRef?.getDocument() { (document, error) in
+            if let document = document {
+                let first = document.get("first name") as! String
+                let last = document.get("last name") as! String
+                let email = document.get("Email") as! String
+                var totalTime = 0
+                friendStudyDocu.getDocuments() { (querySnapshot, err) in
+                        if let err = err {
+                            print("Error getting documents: \(err)")
+                        } else {
+                            var totalTime = 0
+                            for document in querySnapshot!.documents {
+                                totalTime = totalTime + (document.get("Time") as! Int)
+                            }
+                            if self.inPeople(n: email) == false{
+                                    self.people.append(Person(n: (first + " " + last), mins: totalTime, e: email))
+                                    self.reloadPeople()
+                                }
+                            }
+                        }
+                }
+            else {
+                print("Document does not exist in cache", document?.data())
+            }
         }
+        self.friendsTableView.reloadData()
+
     }
     func inPeople(n: String) -> Bool{
         for i in people{
@@ -125,25 +148,36 @@ class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         }
         return false
     }
-    func getTimeStudied(friend:String) -> Int {
+    func addFreind(friend:String){
+        //gets the amount of time the friend has studied , makes a person instance
+        //and then adds that instance to
         var totalTime = 0
-        Firestore.firestore().collection(friend + "StudySession")
-        .getDocuments() { (querySnapshot, err) in
+        Firestore.firestore().collection(friend).document("StudySessions").collection("StudyDocuments").getDocuments() { (querySnapshot, err) in
             if let err = err {
                 print("Error getting documents: \(err)")
             } else {
                 for document in querySnapshot!.documents {
-                    totalTime = totalTime + (document.get("StudySessionTime") as! Int)
+                    totalTime = totalTime + (document.get("Time") as! Int)
                 }
-                let new = Person(n: friend, mins: totalTime)
-                if !self.inPeople(n: friend){
-                    self.people.append(new)
-                    self.friendsTableView.reloadData()
+                var friendInfoRef: DocumentReference?
+                friendInfoRef = Firestore.firestore().collection(friend).document("UserInfo")
+                friendInfoRef?.getDocument() { (document, error) in
+                    if let document = document {
+                        let first = document.get("first name") as! String
+                        let last = document.get("last name") as! String
+                        let new = Person(n: (first + " " + last), mins: totalTime,e:friend )
+                        self.people.append(new)
+                        if !self.inPeople(n: friend){
+                            self.friendsTableView.reloadData()
+                        }
                 }
+
             }
-    }
-        return totalTime
-    }
+          }
+        }
+        }
+        
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         reloadPeople()
@@ -156,20 +190,16 @@ class LeaderBoardVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Friend")
         var coreQ: [NSManagedObject] = []
         do {
-            //gt the data for this person
+            //get the data for this person
             self.people = []
-            var thisPersonTime = 0
-            let email = UserDefaults.standard.string(forKey: "email")!
-            getTimeStudied(friend: email)
-            
-                
+            let user = Auth.auth().currentUser
+            addFreind(friend: user!.email!)//add user to people array
             //get name from core data
             coreQ = try self.managedObjectContext.fetch(fetchRequest)
             self.dataF = coreQ
-            
             for i in coreQ{
                 //get mins from firebase and add to array
-                getTimeStudied(friend: i.value(forKey: "name") as! String)
+                addFreind(friend: i.value(forKey: "email") as! String)//add all friends to people array
             }
             
         } catch {

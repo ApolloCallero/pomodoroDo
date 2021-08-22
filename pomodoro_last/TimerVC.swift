@@ -15,6 +15,7 @@ import UIKit
 import KCCircularTimer
 import Firebase
 import FirebaseFirestore
+import FirebaseAuth
 class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
 
     @IBOutlet weak var startOrBreakLabel: UILabel!
@@ -83,6 +84,11 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
         circleTimerView.maximumValue = Double(25 * 60)
         cancelButton.isEnabled = false
         pauseButton.isEnabled = false
+        
+        
+        
+
+        
     }
     @objc func coolDetected (notification: Notification) {
         print("Cool!")
@@ -99,7 +105,7 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     var breakTimerOn = false
     var breakTimer:Timer? = nil
     var paused = false
-    var lastAction = "Break"
+    var lastAction = "Break"//whether or not the last completed action by userwas a 'Break' or 'Study'
     @IBOutlet weak var timePicker: UIPickerView!
     @IBOutlet weak var breakPicker: UIPickerView!
     @IBOutlet weak var timerLabel: UILabel!
@@ -107,16 +113,26 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
     
     @IBAction func startTapped(_ sender: Any) {
+        /* this function controls what happens when the start button is pressed
+         if start is tapped it will start/resume the timer for both study and break sessions
+        */
+        //if the user is starting/resuming a study session
         if lastAction == "Break"{
-            
+            //resumes/starts study timer
             self.startStudyTime()
+            
+            //disable/enable appropiate buttons
             startButton.isEnabled = false
             cancelButton.isEnabled = true
             pauseButton.isEnabled = true
         }
+        
+        //if the user is starting/resuming a break session
         else if lastAction == "Study"{
-            print("startinggg")
+            //resumes/starts break timer
             self.startBreakTime()
+            
+            //disable/enable appropiate buttons
             startButton.isEnabled = false
             cancelButton.isEnabled = true
             pauseButton.isEnabled = true
@@ -124,6 +140,9 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     @IBAction func cancelTapped(_ sender: Any) {
+        /* this function controls what happens when the cancel button is pressed
+         if the 'cancel' is tapped the current study/break session ends and then a study/break session waits to be started
+        */
         if lastAction == "Break"{
             self.stopStudy()
         }
@@ -133,23 +152,37 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     @IBAction func pauseTapped(_ sender: Any) {
+        /*
+         this function controls what happens when the 'pause' button is tapped
+         when pause is tapped whatever study/break session the user is doing will be paused
+         */
         self.paused = true
         self.timerOn = false
+        //pause study session
         if lastAction == "Break"{
             self.timer?.invalidate()
         }
+        //pause break session
         if lastAction == "Study"{
             self.breakTimer?.invalidate()
         }
+        
+        //enable start buttton and disable pause button
         startButton.isEnabled = true
         pauseButton.isEnabled = false
     }
+    
+    
     /*
     timer functions
     */
     
-    //need to add the logic for if they stop halfway thru
+
     func startStudyTime(){
+        /*
+         
+         
+         */
         startOrBreakLabel.text = "Your Studying!"
         if paused{
             //let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
@@ -168,45 +201,70 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     }
     func startBreakTime(){
         startOrBreakLabel.text = "Taking a break!"
+        print("break timer on: ", breakTimerOn)
+        
+        if paused{
+            //let timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
+            self.timer?.fire()
+            self.paused = false
+            timerOn = true
+        }
         if breakTimerOn == false{
             breakTimerOn = true
             breakSecondsLeft = breakTimeSelected * 60
             breakSessionTime = breakTimeSelected
-            self.scheduleNotification(time: breakSecondsLeft, title: "Break Time Up!", body: "log back in to start study time")
-            let breakTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(fireBreakTimer), userInfo: nil, repeats: true)
-            self.breakTimer = breakTimer
         }
+        self.scheduleNotification(time: breakSecondsLeft, title: "Break Time Up!", body: "log back in to start study time")
+        let breakTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(fireBreakTimer), userInfo: nil, repeats: true)
+        self.breakTimer = breakTimer
     }
     
-    //stop break timer then record it
     func stopBreak(){
+        /* This function stops a break session and then saves it to Firebase
+           Is called only when a break session is up or the 'cancel' button is pressed during a break session
+           TO DO: add logic if the user stops halfway thru a session
+        */
+        
         //stop timer
         breakTimerOn = false
         self.breakTimer?.invalidate()
         circleTimerView.currentValue = circleTimerView.maximumValue
+        
         //record time on break to firebase
         insertBreakSession(Float(self.breakSessionTime))
-        startOrBreakLabel.text = "Start Timer To Study!"
+        
         lastAction = "Break"
+        //enable/diable appropiate buttons
         self.startButton.isEnabled = true
         self.pauseButton.isEnabled = false
         self.cancelButton.isEnabled = false
+        
+        //get ready for a study session
+        startOrBreakLabel.text = "Start Timer To Study!"
         timerLabel.text = "00:00:00"
+        self.breakSecondsLeft = breakTimeSelected * 60
     }
-    //stop study timer then record it and start break time
     func stopStudy(){
+        /*This function stops a Study session and then saves it to Firebase
+         Is called only when a session session is up or the 'cancel' button is pressed during a study session
+         TO DO: add logic if the user stops halfway thru a session
+        */
         //stop timer
         timerOn = false
         self.timer?.invalidate()
         circleTimerView.currentValue = circleTimerView.maximumValue
+        
         //record time on break to firebase
         insertStudySession(Float(self.StudySessionTime))
         self.startButton.isEnabled = true
         self.pauseButton.isEnabled = false
         self.cancelButton.isEnabled = false
+        
+        //get ready for a break session
         startOrBreakLabel.text = "Start Timer To take a break!"
         lastAction = "Study"
         timerLabel.text = "00:00:00"
+        self.secondsLeft = studyTimeSelected * 60
     }
     @objc func fireTimer() {
         circleTimerView.maximumValue = Double(StudySessionTime * 60)
@@ -229,23 +287,14 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
         }
         else{
             timerLabel.text = String(format:"%02i:%02i:%02i", (self.breakSecondsLeft / 3600), Int((self.breakSecondsLeft % 3600)/60), (self.breakSecondsLeft % 3600) % 60)
-            let start = Double(self.secondsLeft) / circleTimerView.maximumValue
+            let start = Double(self.breakSecondsLeft) / circleTimerView.maximumValue
             self.breakSecondsLeft = self.breakSecondsLeft - 1
             let end = Double(self.breakSecondsLeft) / circleTimerView.maximumValue
             circleTimerView.animate(from: start * 60 * Double(breakTimeSelected), to: end * 60 * Double(breakTimeSelected))
 
         }
     }
-    
-    
-    
-    
-    //Firebase functions// Time added in minutes to firebase
 
-
-    
-    
-    //notification functions
     func scheduleNotification(time: Int,title: String, body: String) {
         let content = UNMutableNotificationContent()
         content.title = title
@@ -265,29 +314,11 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
 
     func handleNotification(_ response: UNNotificationResponse) {
-        /*
-        if response.notification.request.content.title == "Break Time Up!"{
-            print("what")
-            self.stopRecordBreak()
-            self.startStudyTime()
-        }
-        else{
-        print("what")
-        self.stopRecordStudy()
-        self.startBreakTime()
-        }*/
+
     }
     
     func notificationAppOpen(){
-        /*
-        if breakTimerOn{
-            self.stopBreak()
-            self.startStudyTime()
-        }
-        else{
-            self.stopStudy()
-            self.startBreakTime()
-        }*/
+
     }
     
     /*
@@ -323,11 +354,10 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     
-    
-    
-    
-    //stole from stack overflow to rotate pickerview
     func rotatePickerView(pickerView : UIPickerView) {
+        /*
+         utility function to rotate picker view
+         */
         var y = pickerView.frame.origin.y
         var x = pickerView.frame.origin.x
         let rotationAngle = -90 * (3.141526 / 180 )
@@ -335,6 +365,9 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
         pickerView.frame = CGRect(x: x, y: y, width: pickerView.frame.height , height: pickerView.frame.width)
     }
     func rotatePickerView2(pickerView : UIPickerView) {
+        /*
+         utility function to rotate picker view
+         */
         var y = pickerView.frame.origin.y
         var x = pickerView.frame.origin.x
         let rotationAngle = -90 * (3.141526 / 180 )
@@ -342,6 +375,9 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
         pickerView.frame = CGRect(x: x, y: y, width: pickerView.frame.height , height: pickerView.frame.width)
     }
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        /*
+         display a picker view of numers
+         */
         let label = UILabel()
             label.font = UIFont(name: "Helvetica", size: 15)
             label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
@@ -353,113 +389,43 @@ class TimerVC: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
             label.text = String(self.minutes[row])
             return label
     }
-    
-    
-    
-    func initUser(){
-        UserDefaults.standard.register(defaults: ["FirstLogin" : true])
-        let userName: String = "larry" // safer to force the type
-        print("\n\n",UserDefaults.standard.bool(forKey: "FirstLogin"))
-        if UserDefaults.standard.bool(forKey: "FirstLogin"){
-            self.profileInfoPopUp()
-            UserDefaults.standard.set(false, forKey: "FirstLogin")
-        }
-        var ref: DocumentReference? = nil
-        
+
+    func insertBreakSession(_ BreakSession: Float ) {
         /*
-        ref = db.collection("users").addDocument(data: [
-        
-        ]) { err in
-            if let err = err {
+         parameters:
+         BreakSession: float of how many minutes the user took a break for
+         adds a break session into firebase
+        */
+        let user = Auth.auth().currentUser
+        let collection = Firestore.firestore().collection(user!.email!).document("BreakSessions").collection("BreakDocuments")
+        var ref: DocumentReference?
+        //add break document
+        ref = collection.addDocument(data: ["Time":BreakSession,"date":getDate()]) { error in
+            if let err = error {
                 print("Error adding document: \(err)")
             } else {
                 print("Document added with ID: \(ref!.documentID)")
-            }*/
-    }
-    
-    
-                                //email,password
-    func profileInfoPopUp(){
-        //Step : 1
-        let alert = UIAlertController(title: "Enter Your email and Password", message: "(or enter some random strings for grading purposes)", preferredStyle: UIAlertController.Style.alert )
-        //Step : 2
-        let save = UIAlertAction(title: "Save", style: .default) { (alertAction) in
-            let emailTextField = alert.textFields![0] as UITextField
-            let passwordTextField = alert.textFields![1] as UITextField
-            if emailTextField.text != "" {
-                UserDefaults.standard.set(emailTextField.text, forKey: "email")
-                //Read TextFields text data
-            } else {
-                print("TF 1 is Empty...")
-            }
-
-            if passwordTextField.text != "" {
-                UserDefaults.standard.set(passwordTextField.text, forKey: "password")
-            } else {
-                print("TF 2 is Empty...")
             }
         }
-
-        //Step : 3
-        //For first TF
-        alert.addTextField { (emailTextField) in
-            emailTextField.placeholder = "Enter 'Email'(req for firebase to work)"
-            emailTextField.textColor = .blue
-        }
-        //For second TF
-        alert.addTextField { (passwordtextField) in
-            passwordtextField.placeholder = "Enter 'password'(req for firebase to work)"
-            passwordtextField.textColor = .blue
-        }
-
-        //Step : 4
-        alert.addAction(save)
-        self.present(alert, animated: true)
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        initUser()
-    }
+    func insertStudySession(_ StudySession: Float ) {
+        /*
+         parameters:
+         StudySession: float of how many minutes the user was studying for
+         adds a study session into firebase
+        */
+        let user = Auth.auth().currentUser
+        let collection = Firestore.firestore().collection(user!.email!).document("StudySessions").collection("StudyDocuments")
+        var ref: DocumentReference?
+        //add break document
+        ref = collection.addDocument(data: ["Time":StudySession,"date":getDate()]) { error in
+            if let err = error {
+                print("Error adding document: \(err)")
+            } else {
+                print("Document added with ID: \(ref!.documentID)")
+            }
+            }
+        }
 }
 
-
-
-
-
-
-
-
-
-
-func insertBreakSession(_ BreakSession: Float ) {//time in minutes
-    let email = UserDefaults.standard.string(forKey: "email")!
-    //let password = UserDefaults.standard.string(forKey: "password")!
-    let collection = Firestore.firestore().collection(email  + "BreakSession")
-    var ref: DocumentReference?
-    //add break document
-    ref = collection.addDocument(data: ["BreakSessionTime":BreakSession,"date":getDate()]) { error in
-        if let err = error {
-            print("Error adding document: \(err)")
-        } else {
-            print("Document added with ID: \(ref!.documentID)")
-            //player.id = ref!.documentID
-        }
-    
-    }
-}
-
-
-func insertStudySession(_ StudySession: Float ) {//time in minutes
-    let email = UserDefaults.standard.string(forKey: "email")!
-    //let password = UserDefaults.standard.string(forKey: "password")!
-    let collection = Firestore.firestore().collection(email  + "StudySession")
-    var ref: DocumentReference?
-    ref = collection.addDocument(data: ["StudySessionTime":StudySession,"date":getDate() ]) { error in
-        if let err = error {
-            print("Error adding document: \(err)")
-        } else {
-            print("Document added with ID: \(ref!.documentID)")
-            //player.id = ref!.documentID
-        }
-    }
-}

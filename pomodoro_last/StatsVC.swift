@@ -12,12 +12,13 @@ import FirebaseFirestore
 import Charts
 
 class StatsVC: UIViewController {
-
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(false)
+        self.getStudyData()
+        
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        //segmentedControl.selectedSegmentIndex =  1
-        self.getData()
-        
         //init chart view values
         chartView.pinchZoomEnabled = false
         chartView.drawBarShadowEnabled = false
@@ -26,7 +27,6 @@ class StatsVC: UIViewController {
         chartView.drawGridBackgroundEnabled = true
         chartView.noDataText = "No Data available for Chart"
         chartView.drawValueAboveBarEnabled = false
-        //self.viewMonthly()
     }
 
 
@@ -35,17 +35,23 @@ class StatsVC: UIViewController {
     var dataNodes = [dataNode]()
     
     
-    var firstLoad = true
+    var load = false
     @IBAction func indexChanged(_ sender: Any) {
+        /*
+         This function Controls the segmented controller that controls how far back the user wants to see
+         their study session, when the segmented controller is changed the corresponding function to dislay the
+         appropiapate amount study sessions is called
+         a function is called that then chan
+         */
         switch segmentedControl.selectedSegmentIndex
         {
-        //all time
+        //all study sessions are shown
         case 0:
             self.allSessions()
-        //monthly
+        //study sessions that occured 30 days ago are shown
         case 1:
             self.viewMonthly()
-        //weekly
+        //study sessions that occured 7 days ago are shown
         case 2:
             self.viewWeekly()
         default:
@@ -54,29 +60,41 @@ class StatsVC: UIViewController {
     }
     
     @IBOutlet weak var chartView: BarChartView!
-    
-    func getData() {
+    func getStudyData() {
+        /*gets all of the users Study sessions and stores them in self.dataNodes as dataNodes and in  self.allStudySessions as minutes
+         */
         self.dataNodes = []
         self.allStudySessions = []
-        let email = UserDefaults.standard.string(forKey: "email")!
-        //let password = UserDefaults.standard.string(forKey: "password")!
-        let collectionStudy = Firestore.firestore().collection(email  + "StudySession")
+        let user = Auth.auth().currentUser
+
+        let collectionStudy = Firestore.firestore().collection(user!.email!).document("StudySessions").collection("StudyDocuments")
         collectionStudy.getDocuments() { (querySnapshot, error) in
             if let err = error {
-                print("Error getting documents: \(err)")
+                print("Error getting documents: \n\n\n\n)")
             } else {
-                for document in querySnapshot!.documents {
-                    let minutes = document.get("StudySessionTime") as! Int
+                let numDocu = querySnapshot!.documents.count
+                var count = 0
+                for document in querySnapshot!.documents{
+                    let minutes = document.get("Time") as! Int
                     let dateMade = document.get("date") as! String
                     self.allStudySessions.append(minutes)
                     self.dataNodes.append(dataNode(isStudySess_: true, minutes_: minutes, date_: dateMade, currentDate_: getDate()))
+                    count += 1
+                    if numDocu == count{
+                        self.load = true
+                        self.allSessions()
+                    }
                 }
-                self.allSessions()
+                
             }
         }
     }
     
+    
     func viewMonthly(){
+        /*
+         Function to display a chart view of the users study sessions that occured in the last 30 days
+         */
         chartView.animate(yAxisDuration: 2.0)
         self.dataNodes = sortByDate(nodes: self.dataNodes)
         var dataEntries: [BarChartDataEntry] = []
@@ -87,7 +105,6 @@ class StatsVC: UIViewController {
             }
         }
         var count = 0
-        print("mins:", mins)
         for _ in mins{
             let dataEntry = BarChartDataEntry(x: Double(count), y: mins[count])
             dataEntries.append(dataEntry)
@@ -103,6 +120,9 @@ class StatsVC: UIViewController {
     }
     
     func viewWeekly(){
+        /*
+         Function to display a chart view of the users study sessions that occured in the last 7 days
+         */
         chartView.animate(yAxisDuration: 2.0)
         var dataEntries: [BarChartDataEntry] = []
         self.dataNodes = sortByDate(nodes: self.dataNodes)
@@ -132,17 +152,29 @@ class StatsVC: UIViewController {
     
     
     func allSessions(){
+        /*
+         Function to display a chart view of ALL the users study sessions
+         */
         chartView.animate(yAxisDuration: 2.0)
         self.dataNodes = sortByDate(nodes: self.dataNodes)
         var dataEntries: [BarChartDataEntry] = []
-        let firstDate = self.dataNodes[0].daysBefore
+        var firstDate = self.dataNodes[0].daysBefore
+        var dayOne = false
+        if firstDate == 0{
+            firstDate = 1
+            dayOne = true
+        }
         var mins = [Double]( repeating: 0.0, count: firstDate)//days
         var arrIndex = 0
         for node in self.dataNodes {
-            if node.daysBefore <= firstDate{
-                mins[firstDate - node.daysBefore] += Double(node.minutes)
+            if node.daysBefore == 0{
+                mins[0] += Double(node.minutes)
+            }
+            else{
+                mins[node.daysBefore - 1] += Double(node.minutes)
             }
         }
+        mins.reverse()
         var count = 0
         for i in mins{
             let dataEntry = BarChartDataEntry(x: Double(count), y: mins[count])
@@ -153,7 +185,14 @@ class StatsVC: UIViewController {
         let chartData = BarChartData(dataSet: chartDataSet)
         chartView.data = chartData
         var xlabel = [String]( repeating: " ", count: 6)
-        xlabel[0] = " agoabcdelmnuvwxyzabcdijklnmopqrstuvwxyzjhbjhbjbhjbhjbjhhhhhhhhhhhhhhhhhhhhjsfhdjdbvhjdf                           \(firstDate) days ago                                                                              Today                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaa "//hacky way to get the xlabel axis to do what i want
+        
+        
+        if dayOne{
+            xlabel[0] = " "
+        }
+        else{
+            xlabel[0] = " agoabcdelmnuvwxyzabcdijklnmopqrstuvwxyzjhbjhbjbhjbhjbjhhhhhhhhhhhhhhhhhhhhjsfhdjdbvhjdf                           \(firstDate) days ago                                                                              Today                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
+        }
         chartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: xlabel)
         chartView.xAxis.granularity = 0
     }

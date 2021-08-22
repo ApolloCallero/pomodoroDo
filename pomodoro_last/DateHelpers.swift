@@ -10,6 +10,10 @@ import Foundation
 
 //firstNode was before second
 func earlierThan(n1: dataNode,n2: dataNode) -> Bool{
+    /*
+     utility function to figure what data node was made first
+     returns true of n2 was made after n1
+     */
     if n1.madeYear < n2.madeYear {
         return true
     }

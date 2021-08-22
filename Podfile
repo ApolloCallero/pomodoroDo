@@ -16,10 +16,13 @@ target 'pomodoro_last' do
    
   # Pods for Pomodoro
   pod 'Firebase/Analytics'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Core'
   pod 'Firebase/Firestore',:modular_headers => true
+  pod 'Firebase/Database'
   pod 'KCCircularTimer'
   pod 'Charts'
-
+end
 post_install do |installer|
   system("mkdir -p Pods/Headers/Public/FirebaseCore && cp Pods/FirebaseCore/Firebase/Core/Public/* Pods/Headers/Public/FirebaseCore/")
   #installer.generated_projects.each do |project|
@@ -31,7 +34,7 @@ post_install do |installer|
       #end
     #end
   #end
-end
+
 
 end
 

@@ -9,10 +9,11 @@ import Foundation
 class Person {
     var name: String
     var timeStudy: Int
-    
-    init(n: String, mins:Int) {
+    var email:String
+    init(n: String, mins:Int, e:String) {
         name = n
         timeStudy = mins
+        email = e
         print(name,":",timeStudy)
     }
 }

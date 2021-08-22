@@ -7,7 +7,9 @@
 
 import Foundation
 class dataNode{
-    
+    /*
+     This class represents how a study/break session
+     */
     let myCalendar = Calendar(identifier: .gregorian)
     //let weekDay: String
     var date : String
@@ -52,6 +54,9 @@ class dataNode{
     
 
 func daysBeforeCurr(year:Int , month: Int, day: Int, currYear: Int, currMonth: Int, currDay: Int) -> Int{
+    /*
+     utility function to figure out how long ago a study/break session was made
+     */
     var sessionMade = NSDateComponents()
     sessionMade.year = year
     sessionMade.month = month
@@ -68,8 +73,11 @@ func daysBeforeCurr(year:Int , month: Int, day: Int, currYear: Int, currMonth: I
     print("diff", diffInDays)
     return diffInDays!
 }
-//Assuming each month is only 30 days
+
 func happendMonth(currentD: Int,currentM:Int,currentYear:Int,createdD:Int,createdM:Int,createdYear: Int ) -> Bool{
+    /*
+     utility function to figure out if a study/break session occured this month
+     */
     //regular same month case
     if createdM == currentM && currentYear == currentYear{
         return true
@@ -92,6 +100,10 @@ func happendMonth(currentD: Int,currentM:Int,currentYear:Int,createdD:Int,create
 }
 
 func happendWeek(currentD: Int,currentM:Int,currentYear:Int,createdD:Int,createdM:Int,createdYear: Int ) -> Bool{
+    /*
+     utility function to figure out if a study/break session occured this week
+     */
+    
     
     //regualr 'middle' case
     if currentD <= createdD + 7 && currentM == createdM && currentYear == createdYear{
